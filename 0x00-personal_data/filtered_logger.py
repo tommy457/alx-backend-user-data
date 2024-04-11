@@ -5,13 +5,14 @@ Module for the filter_datum function.
 import logging
 import re
 from typing import List
+PII_FIELDS = ("name", "email", "phone", "ssn", "password",)
 
 
 def filter_datum(fields: List[str], redaction: str,
                  message: str, separator: str) -> str:
     """ Return an obfuscated log message """
     for field in fields:
-        message = re.sub(r'{}=.*{}'.format(field, separator),
+        message = re.sub(r'{}=.*?{}'.format(field, separator),
                          r'{}={}{}'.format(field, redaction, separator),
                          message)
     return message
@@ -35,3 +36,17 @@ class RedactingFormatter(logging.Formatter):
         record.msg = filter_datum(list(self.fields), self.REDACTION,
                                   record.msg, self.SEPARATOR)
         return super().format(record)
+
+
+def get_logger() -> logging.Logger:
+    """ returns a Logger object """
+    logger = logging.getLogger('user_data')
+    logger.setLevel(logging.INFO)
+    logger.propagate = False
+
+    stream_handler = logging.StreamHandler()
+    formatter = RedactingFormatter(PII_FIELDS)
+
+    stream_handler.setFormatter(formatter)
+    logger.addHandler(stream_handler)
+    return logger
