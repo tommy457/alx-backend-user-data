@@ -3,8 +3,14 @@
 Module for the filter_datum function.
 """
 import logging
+import mysql
+import mysql.connector
+from mysql.connector.connection import MySQLConnection
+import os
 import re
 from typing import List
+
+
 PII_FIELDS = ("name", "email", "phone", "ssn", "password",)
 
 
@@ -50,3 +56,15 @@ def get_logger() -> logging.Logger:
     stream_handler.setFormatter(formatter)
     logger.addHandler(stream_handler)
     return logger
+
+
+def get_db() -> MySQLConnection:
+    """ returns a object connector to the database """
+    config = {
+        'user': os.getenv("PERSONAL_DATA_DB_USERNAME", "root"),
+        'password': os.getenv("PERSONAL_DATA_DB_PASSWORD", ""),
+        'host': os.getenv("PERSONAL_DATA_DB_HOST", "localhost"),
+        'database': os.getenv("PERSONAL_DATA_DB_NAME")
+    }
+    conn = mysql.connector.connect(**config)
+    return conn
