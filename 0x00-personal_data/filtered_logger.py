@@ -68,3 +68,21 @@ def get_db() -> MySQLConnection:
     }
     conn = mysql.connector.connect(**config)
     return conn
+
+
+def main() -> None:
+    """ main entry point. """
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute("SELECT COUNT(*) FROM users;")
+    fields = ["name", "email", "password", "ssn", "phone"]
+    logger = get_logger()
+    for row in cursor:
+        msg = "; ".join("{}={}".format(k, v) for k, v in zip(fields, row))
+        logger.info(msg=msg)
+    cursor.close()
+    db.close()
+
+
+if __name__ == "__main__":
+    main()
