@@ -10,6 +10,10 @@ class Auth:
     """ Defines a auth class. """
     def require_auth(self, path: str, excluded_paths: List[str]) -> bool:
         """ Method for handling protected paths  """
+        for ex_path in excluded_paths:
+            if ex_path.endswith('*') and path.startswith(ex_path[:-1]):
+                return False
+
         if path is None \
            or excluded_paths is None \
            or (path not in excluded_paths
