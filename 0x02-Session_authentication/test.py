@@ -1,14 +1,18 @@
-#!/usr/bin/python3
-""" Check response
+#!/usr/bin/env python3
+""" Cookie server
 """
+from flask import Flask, request
+from api.v1.auth.session_auth import SessionAuth
+
+auth = SessionAuth()
+
+app = Flask(__name__)
+
+@app.route('/', methods=['GET'], strict_slashes=False)
+def root_path():
+    """ Root path
+    """
+    return "Cookie value: {}\n".format(auth.session_cookie(request))
 
 if __name__ == "__main__":
-    from api.v1.auth.basic_auth import BasicAuth
-
-    ba = BasicAuth()
-    res = ba.user_object_from_credentials("u1@gmail.com", "pwd")
-    if res is not None:
-        print("user_object_from_credentials must return None if 'user_email' is not linked to any user")
-        exit(1)
-
-    print("OK", end="")
+    app.run(host="0.0.0.0", port="5000")
