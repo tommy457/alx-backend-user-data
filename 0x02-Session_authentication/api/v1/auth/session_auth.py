@@ -4,8 +4,6 @@ Model for session auth
 """
 from api.v1.auth.auth import Auth
 from uuid import uuid4
-import os
-
 
 class SessionAuth(Auth):
     """ Defines a Session Auth class. """
@@ -27,3 +25,12 @@ class SessionAuth(Auth):
             return None
 
         return self.user_id_by_session_id.get(session_id)
+
+    def current_user(self, request=None):
+        """ returns a `User` instance based on a cookie value. """
+        from models.user import User
+
+        session_id = self.session_cookie(request=request)
+        user_id = self.user_id_for_session_id(session_id)
+
+        return User.get(user_id)
