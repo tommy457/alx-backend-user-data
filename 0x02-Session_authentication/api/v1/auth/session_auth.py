@@ -4,6 +4,8 @@ Model for session auth
 """
 from api.v1.auth.auth import Auth
 from uuid import uuid4
+from typing import TypeVar
+
 
 class SessionAuth(Auth):
     """ Defines a Session Auth class. """
@@ -26,7 +28,7 @@ class SessionAuth(Auth):
 
         return self.user_id_by_session_id.get(session_id)
 
-    def current_user(self, request=None):
+    def current_user(self, request=None) -> TypeVar('User'):
         """ returns a `User` instance based on a cookie value. """
         from models.user import User
 
@@ -34,3 +36,19 @@ class SessionAuth(Auth):
         user_id = self.user_id_for_session_id(session_id)
 
         return User.get(user_id)
+
+    def destroy_session(self, request=None) -> bool:
+        """ deletes the user session / logout. """
+        if request is None:
+            return False
+
+        session_id = self.session_cookie(request)
+        if not session_id:
+            return False
+
+        user_id = self.user_id_for_session_id(session_id)
+        if not user_id:
+            return False
+
+        self.user_id_by_session_id.pop(session_id)
+        return True
