@@ -3,6 +3,7 @@
 Model for Sessions expiration.
 """
 from api.v1.auth.session_exp_auth import SessionExpAuth
+from datetime import datetime, timedelta
 from models.user_session import UserSession
 
 
@@ -28,10 +29,20 @@ class SessionDBAuth(SessionExpAuth):
         if session_id is None:
             return None
 
-        user_id = UserSession.search({"session_id": session_id})
-        if user_id:
+        info = UserSession.search({"session_id": session_id})
+        user_id = info.get("user_id")
+        created_at = info.get("created_at")
+
+        if user_id is None or created_at is None:
+            return None
+
+        if self.session_duration <= 0:
             return user_id
-        return None
+
+        duration = created_at + timedelta(seconds=self.session_duration)
+        if datetime.now() > duration:
+            return None
+        return user_id
 
     def destroy_session(self, request=None) -> bool:
         """ deletes the user session / logout. """
