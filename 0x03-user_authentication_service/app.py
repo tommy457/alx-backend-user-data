@@ -3,7 +3,7 @@
 Module that runs a flask app
 """
 from auth import Auth
-from flask import Flask, jsonify, request, abort
+from flask import Flask, jsonify, request, abort, redirect
 
 
 AUTH = Auth()
@@ -50,6 +50,17 @@ def login() -> str:
         return responce
 
     abort(401)
+
+
+@app.route("/sessions", methods=["POST"], strict_slashes=False)
+def logout() -> None:
+    """ destroy the session and redirect to the root path. """
+    session_id = request.form.get("session_id")
+    user = AUTH.get_user_from_session_id(session_id)
+    if user:
+        AUTH.destroy_session(user.id)
+        redirect("/")
+    abort(403)
 
 
 if __name__ == "__main__":
