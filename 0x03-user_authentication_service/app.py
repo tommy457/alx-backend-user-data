@@ -3,7 +3,6 @@
 Module that runs a flask app
 """
 from auth import Auth
-
 from flask import Flask, jsonify, request
 
 
