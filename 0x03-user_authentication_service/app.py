@@ -55,7 +55,7 @@ def login() -> str:
 @app.route("/sessions", methods=["DELETE"], strict_slashes=False)
 def logout() -> None:
     """ destroy the session and redirect to the root path. """
-    session_id = request.form.get("session_id")
+    session_id = request.cookies.get("session_id")
     user = AUTH.get_user_from_session_id(session_id)
     if user:
         AUTH.destroy_session(user.id)
@@ -66,7 +66,7 @@ def logout() -> None:
 @app.route("/profile", methods=["POST"], strict_slashes=False)
 def profile() -> str:
     """ return a user's profile. """
-    session_id = request.form.get("session_id")
+    session_id = request.cookies.get("session_id")
     user = AUTH.get_user_from_session_id(session_id)
     if not user:
         abort(403)
@@ -80,8 +80,10 @@ def reset_password() -> str:
     email = request.form.get("email")
     if not email:
         abort(403)
-
-    token = AUTH.get_reset_password_token(email)
+    try:
+        token = AUTH.get_reset_password_token(email)
+    except ValueError:
+        pass
     return jsonify({"email": email, "reset_token": token})
 
 
