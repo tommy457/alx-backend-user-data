@@ -63,7 +63,7 @@ def logout() -> None:
     abort(403)
 
 
-@app.route("/profile", methods=["POST"], strict_slashes=False)
+@app.route("/profile", methods=["GET"], strict_slashes=False)
 def profile() -> str:
     """ return a user's profile. """
     session_id = request.cookies.get("session_id")
@@ -74,8 +74,8 @@ def profile() -> str:
     return jsonify({"email": user.email})
 
 
-@app.route("/reset_password", methods=["GET"], strict_slashes=False)
-def reset_password() -> str:
+@app.route("/reset_password", methods=["POST"], strict_slashes=False)
+def get_reset_password_token() -> str:
     """ return a reset token. """
     email = request.form.get("email")
     if not email:
